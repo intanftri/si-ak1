@@ -147,12 +147,23 @@ class PencariKerjaResource extends Resource
                                     ->default(now())
                                     ->native(false),
 
-                                Forms\Components\CheckboxList::make('skills')
+                                Forms\Components\Select::make('skills')
                                     ->label('Keahlian')
+                                    ->placeholder('Pilih Keahlian')
                                     ->relationship('skills', 'nama')
                                     ->columns(3)
                                     ->searchable()
-                                    ->helperText('Pilih satu atau lebih keahlian yang dimiliki'),
+                                    ->multiple()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('nama')
+                                            ->label('Nama Skill')
+                                            ->placeholder('Masukkan Nama Skill')
+                                            ->required(),
+                                    ])
+                                    ->native()
+                                    ->preload()
+                                    ->searchable()
+                                    ->helperText('Tambah / Pilih satu atau lebih keahlian yang dimiliki'),
                             ]),
                     ]),
             ]);
