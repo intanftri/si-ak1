@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 
 class KartuAk1Resource extends Resource
 {
@@ -80,25 +81,62 @@ class KartuAk1Resource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('pencari_kerja_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('pencariKerja.nama')
+                    ->label('Pencari Kerja')
+                    ->description(fn($record) => 'NIK: ' . $record->pencariKerja->nik)
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+
                 Tables\Columns\TextColumn::make('nomor_ak1')
-                    ->searchable(),
+                    ->label('Nomor AK1')
+                    ->badge()
+                    ->copyable()
+                    ->copyMessage('Nomor AK1 disalin')
+                    ->color('info'),
+
                 Tables\Columns\TextColumn::make('tanggal_terbit')
-                    ->date()
-                    ->sortable(),
+                    ->label('Tgl Terbit')
+                    ->date('d M Y')
+                    ->icon('heroicon-o-calendar'),
+
                 Tables\Columns\TextColumn::make('tanggal_berlaku')
-                    ->date()
-                    ->sortable(),
+                    ->label('Masa Berlaku')
+                    ->badge()
+                    ->date('d M Y')
+                    ->color(
+                        fn($state) =>
+                        Carbon::parse($state)->isPast()
+                        ? 'danger'
+                        : 'success'
+                    )
+                    ->icon(
+                        fn($state) =>
+                        Carbon::parse($state)->isPast()
+                        ? 'heroicon-o-x-circle'
+                        : 'heroicon-o-check-circle'
+                    ),
+
                 Tables\Columns\TextColumn::make('file_pdf')
-                    ->searchable(),
+                    ->label('File AK1')
+                    ->icon('heroicon-o-document-text')
+                    ->formatStateUsing(fn($state) => $state ? 'Lihat PDF' : '-')
+                    ->url(
+                        fn($record) => $record->file_pdf
+                        ? asset('storage/' . $record->file_pdf)
+                        : null
+                    )
+                    ->openUrlInNewTab(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Dibuat')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Diubah')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

@@ -16,16 +16,41 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PendidikanResource extends Resource
 {
     protected static ?string $model = Pendidikan::class;
+    protected static ?string $label = 'Pendidikan';
+    protected static ?string $pluralLabel = 'Data Pendidikan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?string $activeNavigationIcon = 'heroicon-s-academic-cap';
+
+    protected static ?string $navigationBadgeTooltip = 'Total Pendidikan';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('jenjang')
-                    ->required()
-                    ->maxLength(50),
+                Forms\Components\Section::make('Data Pendidikan')
+                    ->description('Kelola jenjang pendidikan terakhir pencari kerja')
+                    ->schema([
+                        Forms\Components\TextInput::make('jenjang')
+                            ->label('Jenjang Pendidikan')
+                            ->placeholder('Contoh: SMA / SMK, D3, S1')
+                            ->required()
+                            ->maxLength(50)
+                            ->autofocus(),
+                    ]),
             ]);
     }
 
@@ -34,13 +59,22 @@ class PendidikanResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('jenjang')
-                    ->searchable(),
+                    ->label('Jenjang Pendidikan')
+                    ->badge()
+                    ->color('info')
+                    ->icon('heroicon-o-academic-cap')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Dibuat')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Diubah')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

@@ -16,8 +16,26 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SkillResource extends Resource
 {
     protected static ?string $model = Skill::class;
+    protected static ?string $label = 'Keahlian';
+    protected static ?string $pluralLabel = 'Data Keahlian';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?string $activeNavigationIcon = 'heroicon-s-wrench-screwdriver';
+
+    protected static ?string $navigationBadgeTooltip = 'Total Keahlian';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'success';
+    }
 
     public static function form(Form $form): Form
     {

@@ -16,19 +16,52 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PencariKerjaSkillResource extends Resource
 {
     protected static ?string $model = PencariKerjaSkill::class;
+    protected static ?string $label = 'Relasi Keahlian';
+    protected static ?string $pluralLabel = 'Pencari Kerja & Keahlian';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $navigationIcon = 'heroicon-o-link';
+    protected static ?string $activeNavigationIcon = 'heroicon-s-link';
+
+    protected static ?string $navigationBadgeTooltip = 'Total Relasi Skill';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('pencari_kerja_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('skill_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Section::make('Relasi Pencari Kerja & Keahlian')
+                    ->description('Hubungkan pencari kerja dengan keahlian yang dimiliki')
+                    ->schema([
+                        Forms\Components\Select::make('pencari_kerja_id')
+                            ->label('Pencari Kerja')
+                            ->relationship('pencariKerja', 'nama')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->getOptionLabelFromRecordUsing(
+                                fn($record) => "{$record->nama} ({$record->nik})"
+                            ),
+
+                        Forms\Components\Select::make('skill_id')
+                            ->label('Keahlian')
+                            ->relationship('skill', 'nama')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -36,12 +69,18 @@ class PencariKerjaSkillResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('pencari_kerja_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('skill_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('pencariKerja.nama')
+                    ->label('Pencari Kerja')
+                    ->description(fn($record) => 'NIK: ' . $record->pencariKerja->nik)
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+
+                Tables\Columns\TextColumn::make('skill.nama')
+                    ->label('Keahlian')
+                    ->badge()
+                    ->color('info')
+                    ->searchable(),
             ])
             ->filters([
                 //

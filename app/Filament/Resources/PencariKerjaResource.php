@@ -177,16 +177,19 @@ class PencariKerjaResource extends Resource
                     ->badge()
                     ->color('gray'),
 
-                Tables\Columns\BadgeColumn::make('status_kerja')
+                Tables\Columns\TextColumn::make('status_kerja')
                     ->label('Status')
-                    ->colors([
-                        'success' => 'Aktif',
-                        'warning' => 'Sudah Bekerja',
-                    ])
-                    ->icons([
-                        'heroicon-o-check-circle' => 'Aktif',
-                        'heroicon-o-briefcase' => 'Sudah Bekerja',
-                    ]),
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'Aktif' => 'success',
+                        'Sudah Bekerja' => 'warning',
+                        default => 'gray',
+                    })
+                    ->icon(fn(string $state): string => match ($state) {
+                        'Aktif' => 'heroicon-o-check-circle',
+                        'Sudah Bekerja' => 'heroicon-o-briefcase',
+                        default => 'heroicon-o-question-mark-circle',
+                    }),
 
                 Tables\Columns\TextColumn::make('no_hp')
                     ->label('No. HP')
